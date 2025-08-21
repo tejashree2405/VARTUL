@@ -26,12 +26,44 @@ A full-stack web application with authentication, posts, messaging, user profile
 
 ## ⚡ Quick Start
 
-### 1) Backend Setup
-```bash
-cd backend
-npm install
-# Copy env template and fill values
-cp .env.example .env
-npm start
-# or for auto-reload during development:
-# npm run dev
+### Backend Setup
+1. 1.
+   Navigate to the backend directory:
+   
+   ```
+   cd backend
+   ```
+2. 2.
+   Install dependencies (if not already done):
+   
+   ```
+   npm install
+   ```
+3. 3.
+   Start the backend server:
+   
+   ```
+   npm start
+   ```
+   This will typically run on http://localhost:3000
+### Frontend Setup
+1. 1.
+   Navigate to the frontend directory:
+   
+   ```
+   cd frontend
+   ```
+2. 2.
+   Install dependencies (if not already done):
+   
+   ```
+   npm install
+
+   ```
+3. 3.
+   Start the development server:
+   
+   ```
+   npm run dev
+   ```
+   This will run on http://localhost:5173
