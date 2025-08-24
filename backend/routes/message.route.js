@@ -1,11 +1,13 @@
 import express from "express";
- import isAuthenticated from "../middlewares/isAuthenticated.js";
-import upload from "../middlewares/multer.js";
-import { getMessage, sendMessage } from "../controllers/message.controller.js";
-
 const router = express.Router();
 
-router.route('/send/:id').post(isAuthenticated, sendMessage);
-router.route('/all/:id').get(isAuthenticated, getMessage);
- 
+// Dummy Message Routes
+router.get("/", (req, res) => {
+    res.json({ message: "Messages fetched successfully", messages: ["Hello", "How are you?", "Bye"] });
+});
+
+router.post("/send", (req, res) => {
+    res.json({ message: "Message sent successfully", content: req.body.message || "Empty Message" });
+});
+
 export default router;
