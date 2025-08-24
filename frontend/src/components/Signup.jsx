@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -26,12 +26,7 @@ const Signup = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post('https://instaclone-g9h5.onrender.com/api/v1/user/register', input, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
+            const res = await axiosInstance.post('/user/register', input);
             if (res.data.success) {
                 navigate("/login");
                 toast.success(res.data.message);

@@ -6,7 +6,8 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { MessageCircleCode } from 'lucide-react';
 import Messages from './Messages';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
+import { toast } from 'sonner';
 import { setMessages } from '@/redux/chatSlice';
 
 const ChatPage = () => {
@@ -16,19 +17,20 @@ const ChatPage = () => {
     const dispatch = useDispatch();
 
     const sendMessageHandler = async (receiverId) => {
+        if (!textMessage.trim()) {
+            toast.error("Please enter a message");
+            return;
+        }
+        
         try {
-            const res = await axios.post(`https://instaclone-g9h5.onrender.com/api/v1/message/send/${receiverId}`, { textMessage }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
+            const res = await axiosInstance.post(`/message/send/${receiverId}`, { textMessage });
             if (res.data.success) {
                 dispatch(setMessages([...messages, res.data.newMessage]));
                 setTextMessage("");
             }
         } catch (error) {
-            console.log(error);
+            console.error("Error sending message:", error);
+            toast.error(error.response?.data?.message || "Failed to send message. Please try again.");
         }
     }
 

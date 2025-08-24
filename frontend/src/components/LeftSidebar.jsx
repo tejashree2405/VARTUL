@@ -1,5 +1,5 @@
 import { BarChart3, Coins, Heart, Home, LogOut, MessageCircle, PlusSquare, Search, TrendingUp } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
 import axios from 'axios'
@@ -11,6 +11,7 @@ import { setPosts, setSelectedPost } from '@/redux/postSlice'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Button } from './ui/button'
 import logo from '../assets/vezzra-removebg-preview.png'
+import { setLikeNotification, clearAllNotifications } from '@/redux/rtnSlice'
 
 const LeftSidebar = () => {
     const navigate = useNavigate();
@@ -50,6 +51,22 @@ const LeftSidebar = () => {
             navigate("/token");
         } else if (textType === 'Dashboard') {
             navigate("/dashboard");
+        } else if (textType === 'Search') {
+            // Navigate to search page or open search modal
+            navigate("/");
+            toast.info("Search functionality will be available soon!");
+        } else if (textType === 'Explore') {
+            // Navigate to explore page
+            navigate("/");
+            toast.info("Explore functionality will be available soon!");
+        } else if (textType === 'Notifications') {
+            // Open the notifications popover by simulating a click on the notification button
+            const notificationButton = document.querySelector('[data-notification-trigger="true"]');
+            if (notificationButton) {
+                notificationButton.click();
+            } else {
+                toast.info("No new notifications!");
+            }
         }
     }
 
@@ -91,23 +108,43 @@ const LeftSidebar = () => {
                                         item.text === "Notifications" && likeNotification.length > 0 && (
                                             <Popover>
                                                 <PopoverTrigger asChild>
-                                                    <Button size='icon' className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6">{likeNotification.length}</Button>
+                                                    <Button 
+                                                        size='icon' 
+                                                        className="rounded-full h-5 w-5 bg-red-600 hover:bg-red-600 absolute bottom-6 left-6"
+                                                        data-notification-trigger="true"
+                                                    >
+                                                        {likeNotification.length}
+                                                    </Button>
                                                 </PopoverTrigger>
                                                 <PopoverContent>
                                                     <div>
                                                         {
                                                             likeNotification.length === 0 ? (<p>No new notification</p>) : (
-                                                                likeNotification.map((notification) => {
-                                                                    return (
-                                                                        <div key={notification.userId} className='flex items-center gap-2 my-2'>
-                                                                            <Avatar>
-                                                                                <AvatarImage src={notification.userDetails?.profilePicture} />
-                                                                                <AvatarFallback>CN</AvatarFallback>
-                                                                            </Avatar>
-                                                                            <p className='text-sm'><span className='font-bold'>{notification.userDetails?.username}</span> liked your post</p>
-                                                                        </div>
-                                                                    )
-                                                                })
+                                                                <>
+                                                                    {likeNotification.map((notification) => {
+                                                                        return (
+                                                                            <div key={notification.userId} className='flex items-center gap-2 my-2'>
+                                                                                <Avatar>
+                                                                                    <AvatarImage src={notification.userDetails?.profilePicture} />
+                                                                                    <AvatarFallback>CN</AvatarFallback>
+                                                                                </Avatar>
+                                                                                <p className='text-sm'><span className='font-bold'>{notification.userDetails?.username}</span> liked your post</p>
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                                    <Button 
+                                                                        className="w-full mt-2" 
+                                                                        variant="outline" 
+                                                                        size="sm"
+                                                                        onClick={() => {
+                                                                            // Clear all notifications
+                                                                            dispatch(clearAllNotifications());
+                                                                            toast.success("All notifications cleared");
+                                                                        }}
+                                                                    >
+                                                                        Clear All
+                                                                    </Button>
+                                                                </>
                                                             )
                                                         }
                                                     </div>

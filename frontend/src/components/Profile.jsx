@@ -1,22 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import useGetUserProfile from '@/hooks/useGetUserProfile';
 import { Link, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { AtSign, Heart, MessageCircle } from 'lucide-react';
+import axiosInstance from '../utils/axiosConfig';
+import { toast } from 'sonner';
+import { setUserProfile } from '@/redux/authSlice';
 
 const Profile = () => {
   const params = useParams();
   const userId = params.id;
   useGetUserProfile(userId);
   const [activeTab, setActiveTab] = useState('posts');
+  const [isFollowing, setIsFollowing] = useState(false);
+  const dispatch = useDispatch();
 
   const { userProfile, user } = useSelector(store => store.auth);
 
   const isLoggedInUserProfile = user?._id === userProfile?._id;
-  const isFollowing = false;
+  
+  useEffect(() => {
+    // Check if the logged-in user is following this profile
+    if (userProfile && user) {
+      const following = userProfile.followers.includes(user._id);
+      setIsFollowing(following);
+    }
+  }, [userProfile, user]);
+
+  const handleFollowUnfollow = async () => {
+    try {
+      const res = await axiosInstance.post(`/user/followorunfollow/${userProfile._id}`, {});
+      
+      if (res.data.success) {
+        // Toggle the following state
+        setIsFollowing(!isFollowing);
+        toast.success(res.data.message);
+        
+        // Refresh the user profile to update followers/following counts
+        const profileRes = await axiosInstance.get(`/user/${userId}/profile`);
+        
+        if (profileRes.data.success) {
+          dispatch(setUserProfile(profileRes.data.user));
+        }
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Something went wrong');
+    }
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -48,11 +81,11 @@ const Profile = () => {
                   ) : (
                     isFollowing ? (
                       <>
-                        <Button variant='secondary' className='h-8'>Unfollow</Button>
-                        <Button variant='secondary' className='h-8'>Message</Button>
+                        <Button variant='secondary' className='h-8' onClick={handleFollowUnfollow}>Unfollow</Button>
+                        <Link to="/chat"><Button variant='secondary' className='h-8'>Message</Button></Link>
                       </>
                     ) : (
-                      <Button className='bg-[#0095F6] hover:bg-[#3192d2] h-8'>Follow</Button>
+                      <Button className='bg-[#0095F6] hover:bg-[#3192d2] h-8' onClick={handleFollowUnfollow}>Follow</Button>
                     )
                   )
                 }
